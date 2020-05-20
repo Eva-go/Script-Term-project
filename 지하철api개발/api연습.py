@@ -5,9 +5,10 @@ import xml.etree.ElementTree as etree
 def main():
 
     #서울공공데이터사용
+    서울='%EC%84%9C%EC%9A%B8'
     Jeongwang = '%EC%A0%95%EC%99%95'
     key = '616d6b51456a6b7939324b4f626948'
-    url = "http://swopenapi.seoul.go.kr/api/subway/sample/xml/realtimeStationArrival/1/5/"+Jeongwang
+    url = "http://swopenapi.seoul.go.kr/api/subway/sample/xml/realtimeStationArrival/1/5/"+서울
 
     data = urllib.request.urlopen(url).read()
 
