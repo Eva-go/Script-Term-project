@@ -1,6 +1,4 @@
 import folium
-
-
 pointX=430
 pointY=2300
 map = folium.Map(location=[pointX, pointY],
