@@ -149,8 +149,31 @@ def Change_Text_Box():
         arvlMsg.configure(text=a.findtext("arvlMsg2"))
         current_position .configure(text=a.findtext("arvlMsg3"))
         present_door .configure(text=a.findtext("subwayHeading"))
+def Map():
+    import folium
+    pointX = 37.351770
+    pointY = 126.7418618
+    map = folium.Map(location=[pointX, pointY],
+                     tiles="OpenStreetMap",
+                     zoom_start=30)
 
+    folium.Marker( #마커 크롤링 해서 딕셔너리 넣던지 다 저장해서 출력해야함.
+        location=[pointX,pointY],
+        popup="Marker Here",
+        icon=folium.Icon(icon='green')
+    ).add_to(map)
+    map.save('map.html')
 
+def Map_event():
+    import webbrowser
+    url = 'map.html'
+    webbrowser.open(url)
+
+def Map_Butten():
+    mapbutten=Button(window,text="지도열기",command=Map_event)
+    mapbutten.pack()
+
+    pass
 start=False
 
 window = Tk()
@@ -163,6 +186,9 @@ Init_Input_Label()
 Init_Search_Button()
 Init_Search_Button_Action()
 Sbway_Name_Search()
+Map()
+Map_Butten()
+
 
 for a in root.findall("row"):
     begine_end_sbway = Label(window, text=a.findtext("trainLineNm"))
