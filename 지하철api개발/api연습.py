@@ -151,14 +151,15 @@ def Change_Text_Box():
         present_door .configure(text=a.findtext("subwayHeading"))
 def Map():
     import folium
-    pointX = 37.351770
-    pointY = 126.7418618
-    map = folium.Map(location=[pointX, pointY],
+    #정왕역
+    위도 = 37.351770
+    경도 = 126.7418618
+    map = folium.Map(location=[위도, 경도],
                      tiles="OpenStreetMap",
                      zoom_start=30)
 
     folium.Marker( #마커 크롤링 해서 딕셔너리 넣던지 다 저장해서 출력해야함.
-        location=[pointX,pointY],
+        location=[위도,경도],
         popup="Marker Here",
         icon=folium.Icon(icon='green')
     ).add_to(map)
