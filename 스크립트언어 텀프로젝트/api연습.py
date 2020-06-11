@@ -4,6 +4,7 @@ import xml.etree.ElementTree as etree
 
 from tkinter import *
 from tkinter import font
+from tkinter import ttk
 import tkinter.messagebox
 
 # parse.quote("정왕") 예시
@@ -62,7 +63,6 @@ Line_four = {  # 역 명 딕셔너리
         , "당고개": "당고개"
 }
 encoding = parse.quote(Line_four["정왕"])
-
 def API():
     global window,root
     import http.client
@@ -92,9 +92,10 @@ def Init_Top_Text(): #메인 텍스트
 
 def Init_Input_Label(): #지하철역 검색
     global sbway_name_search
-    sbway_name_search_font=font.Font(window,size=15,weight="bold",family="Consolas")
+    sbway_name_search_font = font.Font(window,size=15,weight="bold",family="Consolas")
     sbway_name_search = Entry(window,font=sbway_name_search_font,width=26,borderwidth=12,state="normal")
     sbway_name_search.pack()
+    pass
 
 def Init_Search_Button(): #지하철역 검색 확인버튼
     ok_butten = Button(window, text="검색", command=Sbway_Name_Search)
@@ -135,10 +136,11 @@ def Sbway_Name_Search():
     sbway_name = str(sbway_name_search.get())
     if(start==False):
         encoding = parse.quote(Line_four["정왕"])
+        start = True
     else:
         encoding = parse.quote(Line_four[sbway_name])
         Change_Text_Box()
-    start=True
+
 
 
 # GUI
@@ -173,12 +175,27 @@ def Map_event():
 def Map_Butten():
     mapbutten=Button(window,text="지도열기",command=Map_event)
     mapbutten.pack()
-
     pass
+
+def Init_Print_Sbway():
+    global root
+    for a in root.findall("row"):
+        begine_end_sbway = Label(window, text=a.findtext("trainLineNm"))
+        begine_end_sbway.pack()
+        arvlMsg = Label(window, text=a.findtext("arvlMsg2"))
+        arvlMsg.pack()
+        current_position = Label(window, text=a.findtext("arvlMsg3"))
+        current_position.pack()
+        present_door = Label(window, text=a.findtext("subwayHeading"))
+        present_door.pack()
+        division = Label(window, text="----------------")
+        division.pack()
+
 start=False
 
 window = Tk()
 window.geometry("1000x1000")  # GUI 크기
+
 
 API()
 Init_Top_Text()
@@ -189,18 +206,9 @@ Init_Search_Button_Action()
 Sbway_Name_Search()
 Map()
 Map_Butten()
+Init_Print_Sbway()
 
 
-for a in root.findall("row"):
-    begine_end_sbway = Label(window, text=a.findtext("trainLineNm"))
-    begine_end_sbway.pack()
-    arvlMsg = Label(window, text=a.findtext("arvlMsg2"))
-    arvlMsg.pack()
-    current_position = Label(window, text=a.findtext("arvlMsg3"))
-    current_position.pack()
-    present_door = Label(window, text=a.findtext("subwayHeading"))
-    present_door.pack()
-    division = Label(window, text="----------------")
-    division.pack()
+
 
 window.mainloop()
