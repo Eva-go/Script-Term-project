@@ -5,13 +5,20 @@ import xml.etree.ElementTree as etree
 from tkinter import *
 from tkinter import font
 from tkinter import ttk
-import tkinter.messagebox
 
-# parse.quote("정왕") 예시
+
 global encoding
 key=None
+
+ok_butten_ck=False
+
+window = Tk()
+window.geometry("1000x800")  # GUI 크기
+window.title("4호선 지하철 검색")
+
+
 Line_four = {  # 역 명 딕셔너리
-        "NULL":None
+        "NULL":" "
         ,"오이도": "오이도"
         , "정왕": "정왕"
         , "신길온천": "신길온천"
@@ -42,8 +49,8 @@ Line_four = {  # 역 명 딕셔너리
         , "신용산": "신용산"
         , "삼각지": "삼각지"
         , "숙대입구": "숙대입구"
-        , "서울":"서울역"
-        , "서울역": "서울역"
+        , "서울" : "서울"
+        , "서울역": "서울"
         , "회연": "회연"
         , "명동": "명동"
         , "충무로": "충무로"
@@ -62,17 +69,80 @@ Line_four = {  # 역 명 딕셔너리
         , "상계": "상계"
         , "당고개": "당고개"
 }
-encoding = parse.quote(Line_four["정왕"])
-def API():
-    global window,root
-    import http.client
+
+#encoding = parse.quote(Line_four["정왕"])
+
+def Init_Top_Text(): #메인 텍스트
+    temp_font = font.Font(window, size=20, weight="bold", family="Consolas")
+    MainText = Label(window,font=temp_font,text="[대중교통 정보 서비스]")
+    MainText.pack()
+    MainText.place(x=350,y=20)
+
+def InitSearch_Island_Platform():#지하철 상하행 알려주는 옵션
+    global SearchListBox
+    Search_Scrollbar=Scrollbar(window)
+    Search_Scrollbar.pack()
+    Search_Scrollbar.place(x=360,y=100)
+
+    temp_font = font.Font(window, size=13, weight="bold", family="Consolas")
+    SearchListBox = Listbox(window, font=temp_font, activestyle="none", width=10, height=1, borderwidth=10,relief="ridge", yscrollcommand=Search_Scrollbar.set)
+
+    SearchListBox.insert(1, "상행")
+    SearchListBox.insert(2, "하행")
+    SearchListBox.insert(3, "상하행")
+    SearchListBox.pack()
+    SearchListBox.place(x=250, y=100)
+    Search_Scrollbar.config(command=SearchListBox.yview)
+    pass
+
+def Init_Input_Label(): #지하철역 검색창
+    global sbway_name_search
+    sbway_name_search_font = font.Font(window,size=13,weight="bold",family="Consolas")
+    sbway_name_search = Entry(window,font=sbway_name_search_font,width=20,borderwidth=10,state="normal")
+    sbway_name_search.pack()
+    sbway_name_search.place(x=40,y=100)
+
+
+def Init_Search_Button(): #지하철역 검색 확인버튼
+    global ok_butten_ck
+    ok_butten = Button(window, text="검색",command=SearchButtonAction)
+    ok_butten.pack()
+    ok_butten.place(x=380, y=110)
+    ok_butten.configure(font='helvetiac 15')
+
+
+
+def SearchButtonAction(): #지하철 검색액션
+    global  encoding,ok_butten_ck,sbway_name_search,print_sbway_list_box,SearchListBox
+    ok_butten_ck=True
+    sbway_name = str(sbway_name_search.get())
+    if (ok_butten_ck):
+        encoding = parse.quote(Line_four[sbway_name])
+        ok_butten_ck = False
+
+    print_sbway_list_box.configure(state='normal')
+    print_sbway_list_box.delete(0,END)
+    Print_Sbway_List_Box()
+    # iSearchIndex = SearchListBox.curselection()[3]
+    # if iSearchIndex == 1:
+    #     abc()
+    #     pass
+    # elif iSearchIndex == 2:
+    #     pass
+    # elif iSearchIndex == 3:
+    #     pass
+    #print_sbway_list_box.configure(state='disabled')
+
+
+def Print_Sbway_List_Box(): #지하철 정보
+    global root,window,root,sbway_name,encoding
     # 서울공공데이터사용
-    key = "616d6b51456a6b7939324b4f626948"
-    url = "http://swopenapi.seoul.go.kr/api/subway/sample/xml/realtimeStationArrival/1/5/" + encoding
+    key = "tKz%2FiLxyD78ft6XbyWnmfh6IyIFaWnxkJhXFfI6FG%2FdrkA41IfPwKJ2LSGp9yHh6bKX0%2F5YeNJWnt1tPUmIXBg%3D%3D"
+    url = "http://openapi.tago.go.kr/openapi/service/BusSttnInfoInqireService/getSttnNoList" + key
 
     data = urllib.request.urlopen(url).read()
 
-    filename = "sample1.xml"
+    filename = "sample2.xml"
     f = open(filename, "wb")  # 다른 사람들의 예제처럼 "w"만 해서 했더니 에러가 발생
     f.write(data)
     f.close()
@@ -80,78 +150,45 @@ def API():
     # 파싱하기
     tree = etree.parse(filename)
     root = tree.getroot()
-
-
-
-def Init_Top_Text(): #메인 텍스트
-    temp_font = font.Font(window, size=20, weight="bold", family="Consolas")
-    MainText = Label(window,font=temp_font,text="[4호선 지하철 검색APP]")
-    MainText.pack()
-    MainText.place(x=20)
-
-
-def Init_Input_Label(): #지하철역 검색
-    global sbway_name_search
-    sbway_name_search_font = font.Font(window,size=15,weight="bold",family="Consolas")
-    sbway_name_search = Entry(window,font=sbway_name_search_font,width=26,borderwidth=12,state="normal")
-    sbway_name_search.pack()
-    pass
-
-def Init_Search_Button(): #지하철역 검색 확인버튼
-    ok_butten = Button(window, text="검색", command=Sbway_Name_Search)
-    ok_butten.pack()
-
-def InitSearch_Island_Platform():#지하철 상하행 알려주는 옵션
-    global SearchListBox
-    platform_box_Scrollbar = Scrollbar(window)
-    platform_box_Scrollbar.pack()
-    platform_box_Scrollbar.place(x=150, y=50)
-    temp_font = font.Font(window, size=15, weight="bold", family="Consolas")
-    SearchListBox = Listbox(window, font=temp_font, activestyle="none",width = 10, height = 1, borderwidth = 12, relief = "ridge",yscrollcommand = platform_box_Scrollbar.set)
-    SearchListBox.insert(1, "상행")
-    SearchListBox.insert(2, "하행")
-    SearchListBox.insert(3, "상하행")
-    SearchListBox.pack()
-    SearchListBox.place(x=10, y=50)
-    platform_box_Scrollbar.config(command=SearchListBox.yview)
-
-def Init_Search_Button_Action():
-    global SearchListBox
-    pass
-
-def Init_Render_Text():
-    render_text_scrollbar=Scrollbar(window)
-    render_text_scrollbar.pack()
-    render_text_scrollbar.place(x=375,y=200)
-    tempfont=font.Font(window,size=10,family="Consolas")
-    render_text=Text(window,width=49,height=27,borderwidth=12,relief="ridge",yscrollcommand=render_text_scrollbar.set)
-    render_text.pack()
-    render_text.place(x=10,y=215)
-    render_text_scrollbar.config(commande=render_text.yview)
-    render_text_scrollbar.pack(size=RIGHT,fill=BOTH)
-    render_text.configure(stat="disabled")
-
-def Sbway_Name_Search():
-    global sbway_name_search,encoding,Line_four,start,root,begine_end_sbway, arvlMsg,current_position,present_door,division
-    sbway_name = str(sbway_name_search.get())
-    if(start==False):
-        encoding = parse.quote(Line_four["정왕"])
-        start = True
-    else:
-        encoding = parse.quote(Line_four[sbway_name])
-        Change_Text_Box()
-
-
-
-# GUI
-def Change_Text_Box():
-    global begine_end_sbway, arvlMsg,current_position,present_door,division
     for a in root.findall("row"):
-        begine_end_sbway.configure(text=a.findtext("trainLineNm"))
-        arvlMsg.configure(text=a.findtext("arvlMsg2"))
-        current_position .configure(text=a.findtext("arvlMsg3"))
-        present_door .configure(text=a.findtext("subwayHeading"))
-def Map():
+        begine_end_sbway = a.findtext("trainLineNm")
+        arvlMsg = a.findtext("arvlMsg2")
+        current_position = a.findtext("arvlMsg3")
+        present_door =a.findtext("subwayHeading")
+        division ="-------------------"
+        print_sbway_list_box.insert(0, "내리실 문: " + present_door)
+        print_sbway_list_box.insert(0, "지하철 위치: " + current_position)
+        print_sbway_list_box.insert(0, "몇전역: "+arvlMsg)
+        print_sbway_list_box.insert(0, "방향: " + begine_end_sbway)
+        print_sbway_list_box.insert(0, division)
+
+def abc():
+    for a in root.findall("row"):
+        begine_end_sbway = a.findtext("trainLineNm")
+        arvlMsg = a.findtext("arvlMsg2")
+        current_position = a.findtext("arvlMsg3")
+        present_door =a.findtext("subwayHeading")
+        division ="-------------------"
+        print_sbway_list_box.insert(0, "내리실 문: " + present_door)
+        print_sbway_list_box.insert(0, "지하철 위치: " + current_position)
+        print_sbway_list_box.insert(0, "몇전역: "+arvlMsg)
+        print_sbway_list_box.insert(0, "방향: " + begine_end_sbway)
+        print_sbway_list_box.insert(0, division)
+
+def Init_Print_Sbway_List_Box(): #GUI
+    global print_sbway_list_box
+    temp_font = font.Font(window, size=15, weight="bold", family="Consolas")
+    print_sbway_scrollbar = Scrollbar(window)
+    print_sbway_scrollbar.pack(side="right", fill="y")
+    # print_sbway_scrollbar.place(x=420, y=150)
+
+    print_sbway_list_box = Listbox(window, font=temp_font, width=34, height=25,
+                                   yscrollcommand=print_sbway_scrollbar.set)
+    print_sbway_list_box.pack()
+    print_sbway_list_box.place(x=40, y=150)
+    print_sbway_scrollbar.config(command=print_sbway_list_box.yview)
+
+def Map():#지도 구성
     import folium
     #정왕역
     위도 = 37.351770
@@ -160,55 +197,32 @@ def Map():
                      tiles="OpenStreetMap",
                      zoom_start=30)
 
-    folium.Marker( #마커 크롤링 해서 딕셔너리 넣던지 다 저장해서 출력해야함.
+    folium.Marker(
         location=[위도,경도],
         popup="Marker Here",
         icon=folium.Icon(icon='green')
     ).add_to(map)
     map.save('map.html')
 
-def Map_event():
+def Map_event(): #지도 저장
     import webbrowser
     url = 'map.html'
     webbrowser.open(url)
 
-def Map_Butten():
+
+def Map_Butten(): #지도열기
     mapbutten=Button(window,text="지도열기",command=Map_event)
     mapbutten.pack()
     pass
 
-def Init_Print_Sbway():
-    global root
-    for a in root.findall("row"):
-        begine_end_sbway = Label(window, text=a.findtext("trainLineNm"))
-        begine_end_sbway.pack()
-        arvlMsg = Label(window, text=a.findtext("arvlMsg2"))
-        arvlMsg.pack()
-        current_position = Label(window, text=a.findtext("arvlMsg3"))
-        current_position.pack()
-        present_door = Label(window, text=a.findtext("subwayHeading"))
-        present_door.pack()
-        division = Label(window, text="----------------")
-        division.pack()
 
-start=False
+Init_Top_Text() #메인 텍스트
+InitSearch_Island_Platform() #지하철 상하행 알려주는 옵션
+Init_Input_Label() #지하철 검색창
+Init_Search_Button() #지하철 검색 버튼
+Init_Print_Sbway_List_Box()#지하철 정보 GUI
 
-window = Tk()
-window.geometry("1000x1000")  # GUI 크기
-
-
-API()
-Init_Top_Text()
-InitSearch_Island_Platform()
-Init_Input_Label()
-Init_Search_Button()
-Init_Search_Button_Action()
-Sbway_Name_Search()
 Map()
 Map_Butten()
-Init_Print_Sbway()
-
-
-
 
 window.mainloop()

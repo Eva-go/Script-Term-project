@@ -7,7 +7,7 @@ from tkinter import font
 from tkinter import ttk
 
 
-global encoding
+global coding
 key=None
 
 ok_butten_ck=False
@@ -70,11 +70,11 @@ Line_four = {  # 역 명 딕셔너리
         , "당고개": "당고개"
 }
 
-#encoding = parse.quote(Line_four["정왕"])
+#coding = parse.quote(Line_four["정왕"])
 
 def Init_Top_Text(): #메인 텍스트
     temp_font = font.Font(window, size=20, weight="bold", family="Consolas")
-    MainText = Label(window,font=temp_font,text="[4호선 지하철 검색APP]")
+    MainText = Label(window,font=temp_font,text="[대중교통 정보 서비스]")
     MainText.pack()
     MainText.place(x=350,y=20)
 
@@ -87,9 +87,8 @@ def InitSearch_Island_Platform():#지하철 상하행 알려주는 옵션
     temp_font = font.Font(window, size=13, weight="bold", family="Consolas")
     SearchListBox = Listbox(window, font=temp_font, activestyle="none", width=10, height=1, borderwidth=10,relief="ridge", yscrollcommand=Search_Scrollbar.set)
 
-    SearchListBox.insert(1, "상행")
-    SearchListBox.insert(2, "하행")
-    SearchListBox.insert(3, "상하행")
+    SearchListBox.insert(1, "지하철")
+    SearchListBox.insert(2, "버스")
     SearchListBox.pack()
     SearchListBox.place(x=250, y=100)
     Search_Scrollbar.config(command=SearchListBox.yview)
@@ -113,11 +112,11 @@ def Init_Search_Button(): #지하철역 검색 확인버튼
 
 
 def SearchButtonAction(): #지하철 검색액션
-    global  encoding,ok_butten_ck,sbway_name_search,print_sbway_list_box,SearchListBox
+    global  coding,ok_butten_ck,sbway_name_search,print_sbway_list_box,SearchListBox
     ok_butten_ck=True
     sbway_name = str(sbway_name_search.get())
     if (ok_butten_ck):
-        encoding = parse.quote(Line_four[sbway_name])
+        coding = parse.quote(Line_four[sbway_name])
         ok_butten_ck = False
 
     print_sbway_list_box.configure(state='normal')
@@ -129,16 +128,14 @@ def SearchButtonAction(): #지하철 검색액션
     #     pass
     # elif iSearchIndex == 2:
     #     pass
-    # elif iSearchIndex == 3:
-    #     pass
     #print_sbway_list_box.configure(state='disabled')
 
 
 def Print_Sbway_List_Box(): #지하철 정보
-    global root,window,root,sbway_name,encoding
+    global root,window,root,sbway_name,coding
     # 서울공공데이터사용
     key = "616d6b51456a6b7939324b4f626948"
-    url = "http://swopenapi.seoul.go.kr/api/subway/sample/xml/realtimeStationArrival/1/5/" + encoding
+    url = "http://swopenapi.seoul.go.kr/api/subway/sample/xml/realtimeStationArrival/1/5/" + coding
 
     data = urllib.request.urlopen(url).read()
 
@@ -197,7 +194,7 @@ def Map():#지도 구성
                      tiles="OpenStreetMap",
                      zoom_start=30)
 
-    folium.Marker( #마커 크롤링 해서 딕셔너리 넣던지 다 저장해서 출력해야함.
+    folium.Marker(
         location=[위도,경도],
         popup="Marker Here",
         icon=folium.Icon(icon='green')
@@ -215,13 +212,21 @@ def Map_Butten(): #지도열기
     mapbutten.pack()
     pass
 
+def abc():
+    import csv
+    f=open('4호선 지하철 역 위치정보.csv','r',encoding='utf-8')
+    rdr=csv.reader(f)
+    for line in rdr:
+        print(line)
+    f.close()
+
 
 Init_Top_Text() #메인 텍스트
 InitSearch_Island_Platform() #지하철 상하행 알려주는 옵션
 Init_Input_Label() #지하철 검색창
 Init_Search_Button() #지하철 검색 버튼
 Init_Print_Sbway_List_Box()#지하철 정보 GUI
-
+abc()
 Map()
 Map_Butten()
 
