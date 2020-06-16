@@ -7,9 +7,8 @@ from tkinter import font
 from tkinter import ttk
 
 
-global coding
-key=None
-
+global coding,busnumber
+key = "616d6b51456a6b7939324b4f626948"
 ok_butten_ck=False
 
 window = Tk()
@@ -68,6 +67,47 @@ Line_four = {  # 역 명 딕셔너리
         , "노원": "노원"
         , "상계": "상계"
         , "당고개": "당고개"
+        , "평택":"평택"
+}
+
+
+number = {  # 역 명 딕셔너리
+        "NULL":" "
+        , "수리산": "1763"
+        , "산본": "1751"
+        , "금정": "1458"
+        , "범계": "1457"
+        , "인덕원": "1455"
+        , "정부과청청사": "1454"
+        , "과천": "1453"
+        , "선바위": "1450"
+        , "남태령": "0434"
+        , "사당": "0433"
+        , "총신대입구": "0432"
+        , "동작": "0431"
+        , "이촌": "0430"
+        , "신용산": "0429"
+        , "삼각지": "0428"
+        , "숙대입구": "0427"
+        , "서울" : "0426"
+        , "서울역": "0426"
+        , "회연": "0425"
+        , "명동": "0424"
+        , "충무로": "0423"
+        , "동대문역사문화공원": "0422"
+        , "동대문": "421"
+        , "혜화": "0420"
+        , "한성대입구": "0419"
+        , "성신여대입구": "0418"
+        , "길음": "0417"
+        , "미아사거리": "0416"
+        , "미아": "0415"
+        , "수유": "0414"
+        , "쌍문": "0413"
+        , "창동": "0412"
+        , "노원": "0411"
+        , "상계": "0410"
+        , "당고개": "0409"
 }
 
 #coding = parse.quote(Line_four["정왕"])
@@ -112,34 +152,54 @@ def Init_Search_Button(): #지하철역 검색 확인버튼
 
 
 def SearchButtonAction(): #지하철 검색액션
-    global  coding,ok_butten_ck,sbway_name_search,print_sbway_list_box,SearchListBox
+    global  coding,ok_butten_ck,sbway_name_search,print_list_box,SearchListBox
     ok_butten_ck=True
+    iSearchIndex = SearchListBox.curselection()
+
+    if (len(iSearchIndex)) == 0:
+        isearchindex1()
+        print(len(iSearchIndex))
+
+    elif (len(iSearchIndex)) == 1:
+        isearchindex2()
+        print(len(iSearchIndex))
+
+
+
+    print_list_box.configure(state='normal')
+
+def isearchindex1():
+    global coding,ok_butten_ck,sbway_name_search,print_list_box,busnumber
     sbway_name = str(sbway_name_search.get())
     if (ok_butten_ck):
         coding = parse.quote(Line_four[sbway_name])
         ok_butten_ck = False
 
-    print_sbway_list_box.configure(state='normal')
-    print_sbway_list_box.delete(0,END)
+    print_list_box.configure(state='normal')
+    print_list_box.delete(0, END)
     Print_Sbway_List_Box()
-    # iSearchIndex = SearchListBox.curselection()[3]
-    # if iSearchIndex == 1:
-    #     abc()
-    #     pass
-    # elif iSearchIndex == 2:
-    #     pass
-    #print_sbway_list_box.configure(state='disabled')
+
+def isearchindex2():
+    global busnumber, ok_butten_ck, sbway_name_search, print_list_box,coding
+    sbway_name = str(sbway_name_search.get())
+    if (ok_butten_ck):
+        coding = parse.quote(Line_four[sbway_name])
+        ok_butten_ck = False
+
+    print_list_box.configure(state='normal')
+    print_list_box.delete(0, END)
+    Print_Bus_List_Box()
 
 
 def Print_Sbway_List_Box(): #지하철 정보
     global root,window,root,sbway_name,coding
     # 서울공공데이터사용
-    key = "616d6b51456a6b7939324b4f626948"
+
     url = "http://swopenapi.seoul.go.kr/api/subway/sample/xml/realtimeStationArrival/1/5/" + coding
 
     data = urllib.request.urlopen(url).read()
 
-    filename = "sample1.xml"
+    filename = "sbway.xml"
     f = open(filename, "wb")  # 다른 사람들의 예제처럼 "w"만 해서 했더니 에러가 발생
     f.write(data)
     f.close()
@@ -153,37 +213,87 @@ def Print_Sbway_List_Box(): #지하철 정보
         current_position = a.findtext("arvlMsg3")
         present_door =a.findtext("subwayHeading")
         division ="-------------------"
-        print_sbway_list_box.insert(0, "내리실 문: " + present_door)
-        print_sbway_list_box.insert(0, "지하철 위치: " + current_position)
-        print_sbway_list_box.insert(0, "몇전역: "+arvlMsg)
-        print_sbway_list_box.insert(0, "방향: " + begine_end_sbway)
-        print_sbway_list_box.insert(0, division)
+        print_list_box.insert(0, "내리실 문: " + present_door)
+        print_list_box.insert(0, "지하철 위치: " + current_position)
+        print_list_box.insert(0, "몇전역: " + arvlMsg)
+        print_list_box.insert(0, "방향: " + begine_end_sbway)
+        print_list_box.insert(0, division)
 
-def abc():
-    for a in root.findall("row"):
-        begine_end_sbway = a.findtext("trainLineNm")
-        arvlMsg = a.findtext("arvlMsg2")
-        current_position = a.findtext("arvlMsg3")
-        present_door =a.findtext("subwayHeading")
+
+def Print_Bus_List_Box(): #버스 정보
+    global busnumber,coding
+    import urllib.request
+    import xml.etree.ElementTree as ET
+
+    url = "http://ws.bus.go.kr/api/rest/stationinfo/getStationByName?serviceKey=tKz%2FiLxyD78ft6XbyWnmfh6IyIFaWnxkJhXFfI6FG%2FdrkA41IfPwKJ2LSGp9yHh6bKX0%2F5YeNJWnt1tPUmIXBg%3D%3D&stSrch=" + coding
+    data = urllib.request.urlopen(url).read()
+
+    file_name = "bus.xml"
+    f_ = open(file_name, "wb")  # 다른 사람들의 예제처럼 "w"만 해서 했더니 에러가 발생
+    f_.write(data)
+    f_.close()
+
+    doc = ET.parse(file_name)
+    root = doc.getroot()
+    for a in root.iter("itemList"):
+        arsId = a.findtext("arsId")
+        print(arsId)
+        Bus_Stop(arsId)
+
+
+
+def Bus_Stop(arsId):
+    import urllib.request
+    import xml.etree.ElementTree as ET
+
+    url = "http://ws.bus.go.kr/api/rest/stationinfo/getStationByUid?serviceKey=tKz%2FiLxyD78ft6XbyWnmfh6IyIFaWnxkJhXFfI6FG%2FdrkA41IfPwKJ2LSGp9yHh6bKX0%2F5YeNJWnt1tPUmIXBg%3D%3D&arsId="+arsId
+
+    data = urllib.request.urlopen(url).read()
+
+    file_name = "bussopt.xml"
+    f_ = open(file_name, "wb")  # 다른 사람들의 예제처럼 "w"만 해서 했더니 에러가 발생
+    f_.write(data)
+    f_.close()
+
+    doc = ET.parse(file_name)
+    root = doc.getroot()
+
+    for a in root.iter("itemList"):
+        adirection = a.findtext("adirection")
+        arrmsg1 = a.findtext("arrmsg1")
+        arrmsg2 = a.findtext("arrmsg2")
+        nxtStn = a.findtext("nxtStn")
+        sectNm = a.findtext("sectNm")
+        stNm = a.findtext("stNm")
+        gpsX = a.findtext("gpsX")
+        gpsY = a.findtext("gpsY")
         division ="-------------------"
-        print_sbway_list_box.insert(0, "내리실 문: " + present_door)
-        print_sbway_list_box.insert(0, "지하철 위치: " + current_position)
-        print_sbway_list_box.insert(0, "몇전역: "+arvlMsg)
-        print_sbway_list_box.insert(0, "방향: " + begine_end_sbway)
-        print_sbway_list_box.insert(0, division)
+        print_list_box.insert(0, "구간:" + sectNm)
+        print_list_box.insert(0,"방향:"+adirection)
+        print_list_box.insert(0,"도착예정: "+arrmsg1)
+        print_list_box.insert(0,"다음 도착예정: "+arrmsg2)
+
+        print_list_box.insert(0,"다음정류장:"+nxtStn)
+
+        print_list_box.insert(0,"검색한 근처 정류장:"+stNm)
+        print_list_box.insert(0,division)
+
+
+
+
 
 def Init_Print_Sbway_List_Box(): #GUI
-    global print_sbway_list_box
+    global print_list_box
     temp_font = font.Font(window, size=15, weight="bold", family="Consolas")
     print_sbway_scrollbar = Scrollbar(window)
     print_sbway_scrollbar.pack(side="right", fill="y")
     # print_sbway_scrollbar.place(x=420, y=150)
 
-    print_sbway_list_box = Listbox(window, font=temp_font, width=34, height=25,
-                                   yscrollcommand=print_sbway_scrollbar.set)
-    print_sbway_list_box.pack()
-    print_sbway_list_box.place(x=40, y=150)
-    print_sbway_scrollbar.config(command=print_sbway_list_box.yview)
+    print_list_box = Listbox(window, font=temp_font, width=34, height=25,
+                             yscrollcommand=print_sbway_scrollbar.set)
+    print_list_box.pack()
+    print_list_box.place(x=40, y=150)
+    print_sbway_scrollbar.config(command=print_list_box.yview)
 
 def Map():#지도 구성
     import folium
@@ -214,12 +324,15 @@ def Map_Butten(): #지도열기
 
 def abc():
     import csv
-    f=open('4호선 지하철 역 위치정보.csv','r',encoding='utf-8')
-    rdr=csv.reader(f)
+    global sbway_name
+    sbway_name="종로3가"
+    f = open('버스정류소위치정보.csv', 'r', encoding='utf-8')
+    rdr = csv.reader(f)
     for line in rdr:
-        print(line)
-    f.close()
+        if(line==sbway_name):
+            print(line)
 
+    f.close()
 
 Init_Top_Text() #메인 텍스트
 InitSearch_Island_Platform() #지하철 상하행 알려주는 옵션
