@@ -110,7 +110,6 @@ number = {  # 역 명 딕셔너리
         , "당고개": "0409"
 }
 
-#coding = parse.quote(Line_four["정왕"])
 
 def Init_Top_Text(): #메인 텍스트
     temp_font = font.Font(window, size=20, weight="bold", family="Consolas")
@@ -178,9 +177,10 @@ def isearchindex1():
     print_list_box.configure(state='normal')
     print_list_box.delete(0, END)
     Print_Sbway_List_Box()
+    maps(sbway_name)
 
 def isearchindex2():
-    global busnumber, ok_butten_ck, sbway_name_search, print_list_box,coding
+    global busnumber, ok_butten_ck, sbway_name_search, print_list_box,coding,GPS
     sbway_name = str(sbway_name_search.get())
     if (ok_butten_ck):
         coding = parse.quote(Line_four[sbway_name])
@@ -189,6 +189,8 @@ def isearchindex2():
     print_list_box.configure(state='normal')
     print_list_box.delete(0, END)
     Print_Bus_List_Box()
+    maps(sbway_name)
+
 
 
 def Print_Sbway_List_Box(): #지하철 정보
@@ -243,6 +245,7 @@ def Print_Bus_List_Box(): #버스 정보
 
 
 def Bus_Stop(arsId):
+    global BusGpsX,BusGpsY
     import urllib.request
     import xml.etree.ElementTree as ET
 
@@ -265,21 +268,16 @@ def Bus_Stop(arsId):
         nxtStn = a.findtext("nxtStn")
         sectNm = a.findtext("sectNm")
         stNm = a.findtext("stNm")
-        gpsX = a.findtext("gpsX")
-        gpsY = a.findtext("gpsY")
+        BusGpsX = a.findtext("gpsX")
+        BusGpsY = a.findtext("gpsY")
         division ="-------------------"
         print_list_box.insert(0, "구간:" + sectNm)
         print_list_box.insert(0,"방향:"+adirection)
-        print_list_box.insert(0,"도착예정: "+arrmsg1)
-        print_list_box.insert(0,"다음 도착예정: "+arrmsg2)
-
         print_list_box.insert(0,"다음정류장:"+nxtStn)
-
+        print_list_box.insert(0, "다음 도착예정: " + arrmsg2)
+        print_list_box.insert(0, "도착예정: " + arrmsg1)
         print_list_box.insert(0,"검색한 근처 정류장:"+stNm)
         print_list_box.insert(0,division)
-
-
-
 
 
 def Init_Print_Sbway_List_Box(): #GUI
@@ -295,21 +293,18 @@ def Init_Print_Sbway_List_Box(): #GUI
     print_list_box.place(x=40, y=150)
     print_sbway_scrollbar.config(command=print_list_box.yview)
 
-def Map():#지도 구성
+def Map(sbway_name):#지도 구성
     import folium
     #정왕역
-    위도 = 37.351770
-    경도 = 126.7418618
-    map = folium.Map(location=[위도, 경도],
+    map = folium.Map(location=[float(SbwayGpsX), float(SbwayGpsY)],
                      tiles="OpenStreetMap",
                      zoom_start=30)
 
     folium.Marker(
-        location=[위도,경도],
-        popup="Marker Here",
+        location=[float(SbwayGpsX),float(SbwayGpsY)],
+        popup=sbway_name+"역",
         icon=folium.Icon(icon='green')
     ).add_to(map)
-    map.save('map.html')
 
 def Map_event(): #지도 저장
     import webbrowser
@@ -322,25 +317,56 @@ def Map_Butten(): #지도열기
     mapbutten.pack()
     pass
 
-def abc():
+def maps(sbway_name):
+    global SbwayGpsX,SbwayGpsY,line,GPS
     import csv
-    global sbway_name
-    sbway_name="종로3가"
-    f = open('버스정류소위치정보.csv', 'r', encoding='utf-8')
+    f = open('4호선 지하철 역 위치정보.csv', 'rt', encoding='UTF8')
     rdr = csv.reader(f)
     for line in rdr:
-        if(line==sbway_name):
-            print(line)
-
+        if (line[0] == sbway_name):
+                SbwayGpsX=line[1]
+                SbwayGpsY=line[2]
     f.close()
+    Map(sbway_name)
+
+def Gmail(): #Gmail 보내기 GUI
+
+    Lable_login = Label(window, text="Gmail 로그인",font='helvetica 16 italic',width=15, borderwidth=5,relief="ridge")
+    Lable_login.pack()
+    Lable_login.place(x=650, y=450)
+
+    Lable_id = Label(window, text="ID:")
+    Lable_id.pack()
+    Lable_id.place(x=625, y=505)
+
+    Lable_pw = Label(window, text="PW:")
+    Lable_pw.pack()
+    Lable_pw.place(x=625, y=555)
+
+    #id
+    temp_font = font.Font(window, size=13,family="Consolas")
+    Entry_id = Entry(window, font=temp_font, width=20, borderwidth=3,relief="solid")
+    Entry_id.pack()
+    Entry_id.place(x=650, y=500)
+
+    #pw
+    temp_font = font.Font(window, size=13, family="Consolas")
+    Entry_pw = Entry(window, font=temp_font, width=20, borderwidth=3,relief="solid")
+    Entry_pw.pack()
+    Entry_pw.place(x=650, y=550)
+
+
+    pass
+
+
+
+
 
 Init_Top_Text() #메인 텍스트
 InitSearch_Island_Platform() #지하철 상하행 알려주는 옵션
 Init_Input_Label() #지하철 검색창
 Init_Search_Button() #지하철 검색 버튼
 Init_Print_Sbway_List_Box()#지하철 정보 GUI
-abc()
-Map()
 Map_Butten()
-
+Gmail()
 window.mainloop()
