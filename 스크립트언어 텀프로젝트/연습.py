@@ -115,7 +115,7 @@ def Init_Top_Text(): #메인 텍스트
     temp_font = font.Font(window, size=20, weight="bold", family="Consolas")
     MainText = Label(window,font=temp_font,text="[대중교통 정보 서비스]")
     MainText.pack()
-    MainText.place(x=350,y=20)
+    MainText.place(x=50,y=20)
 
 def InitSearch_Island_Platform():#지하철 상하행 알려주는 옵션
     global SearchListBox
@@ -313,8 +313,11 @@ def Map_event(): #지도 저장
 
 
 def Map_Butten(): #지도열기
-    mapbutten=Button(window,text="지도열기",command=Map_event)
+    temp_font = font.Font(window, size=13, family="Consolas")
+    mapbutten=Button(window,text="지도열기",font=temp_font,width=40, height=1, relief="raised", overrelief="raised",command=Map_event)
     mapbutten.pack()
+    mapbutten.place(x=550, y=750)
+
     pass
 
 def maps(sbway_name):
@@ -330,8 +333,8 @@ def maps(sbway_name):
     Map(sbway_name)
 
 def Gmail(): #Gmail 보내기 GUI
-
-    Lable_login = Label(window, text="Gmail 로그인",font='helvetica 16 italic',width=15, borderwidth=5,relief="ridge")
+    global Entry_id, Entry_pw,Entry_to,Entry_msg
+    Lable_login = Label(window, text="Gmail 보내기",font='helvetica 16 italic',width=15, borderwidth=5,relief="ridge")
     Lable_login.pack()
     Lable_login.place(x=650, y=450)
 
@@ -341,7 +344,15 @@ def Gmail(): #Gmail 보내기 GUI
 
     Lable_pw = Label(window, text="PW:")
     Lable_pw.pack()
-    Lable_pw.place(x=625, y=555)
+    Lable_pw.place(x=620, y=555)
+
+    Lable_to = Label(window, text="받는사람:")
+    Lable_to.pack()
+    Lable_to.place(x=590, y=605)
+
+    Lable_msg = Label(window, text="보낼내용:")
+    Lable_msg.pack()
+    Lable_msg.place(x=590, y=655)
 
     #id
     temp_font = font.Font(window, size=13,family="Consolas")
@@ -355,18 +366,77 @@ def Gmail(): #Gmail 보내기 GUI
     Entry_pw.pack()
     Entry_pw.place(x=650, y=550)
 
+    # to
+    temp_font = font.Font(window, size=13, family="Consolas")
+    Entry_to = Entry(window, font=temp_font, width=20, borderwidth=3, relief="solid")
+    Entry_to.pack()
+    Entry_to.place(x=650, y=600)
 
+    # msg
+    temp_font = font.Font(window, size=13, family="Consolas")
+    Entry_msg = Entry(window, font=temp_font, width=20, borderwidth=3, relief="solid")
+    Entry_msg.pack()
+    Entry_msg.place(x=650, y=650)
+
+
+    #login
+    Login_button=Button(window,text="보내기",width=20,height=1,relief="groove",overrelief="groove",command=Gmail_login_button)
+    Login_button.pack()
+    Login_button.place(x=668,y=700)
     pass
 
+def Gmail_login_button():
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.header import Header
+    global Entry_id,Entry_pw,Entry_to,Entry_msg
+    G_id = str(Entry_id.get())
+    G_pw = str(Entry_pw.get())
+    G_to = str(Entry_to.get())
+    G_msg= str(Entry_msg.get())
+    msg = MIMEText(G_msg)  # 메일 본문 첨부
+
+    msg['Subject'] = Header('대중교통 정보 서비스', 'utf-8')  # 메일 제목 첨부
+    msg['From'] = 'sendermail@example.com'  # 송신 메일
+    msg['To'] = G_to  # 수신 메일
+    with smtplib.SMTP_SSL('smtp.gmail.com') as smtp:  # (*)
+        smtp.login(G_id+"@gmail.com", G_pw)  # (**)
+        smtp.send_message(msg)
+
+def Time_GUI(): #시간관련 GUI
+    global time_box
+    time_button = Button(window, text="시간확인", width=20, height=1, relief="groove", overrelief="groove",command=Time_c)
+    time_button.pack()
+    time_button.place(x=425, y=25)
+
+    temp_font = font.Font(window, size=15, weight="bold", family="Consolas")
+    time_box = Listbox(window, font=temp_font, width=30, height=1,)
+    time_box.pack()
+    time_box.place(x=580, y=25)
 
 
-
+def Time_c(): #C에서 TIME함수를 받아와 사용
+    global time_box
+    import spam
+    time_box.configure(state='normal')
+    time_box.delete(0, END)
+    time=spam.strlen("1")
+    time_box.insert(1,"지금은:"+str(time[0])+"월"+str(time[1])+"일"+str(time[2])+"시"+str(time[3])+"분"+str(time[4])+"초")
 
 Init_Top_Text() #메인 텍스트
 InitSearch_Island_Platform() #지하철 상하행 알려주는 옵션
 Init_Input_Label() #지하철 검색창
 Init_Search_Button() #지하철 검색 버튼
 Init_Print_Sbway_List_Box()#지하철 정보 GUI
-Map_Butten()
-Gmail()
+
+Map_Butten() #MAP 출력
+Gmail() #이메일 관련
+Time_GUI() #시간출력
+#image
+photo=PhotoImage(file="4호선(수정).png")
+imageLabel = Label(window, image=photo)
+imageLabel.pack()
+imageLabel.place(x=550,y=90)
+
 window.mainloop()
+
